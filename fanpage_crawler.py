@@ -5,11 +5,12 @@ import codecs
 import jieba
 import pickle
 
+print os.environ
+LIMIT = 25
 TOKEN = os.environ['TOKEN']
-
 COMMENT_URL = 'https://graph.facebook.com/v2.8/'
 OBJECT_ID = '576472312465910'
-QUERY = '/feed?fields=message,comments.limit(2000).summary(true){comments,message,from,message_tags},reactions.limit(2000).summary(true),shares,created_time,story&access_token='
+QUERY = '/feed?fields=message,comments.limit('+str(LIMIT)+').summary(true){comments,message,from,message_tags},reactions.limit('+str(LIMIT)+').summary(true),shares,created_time,story&access_token='
 
 data = []
 
@@ -21,13 +22,17 @@ res_json = json.loads(res.text)
 page = 0
 data.append(res_json['data'])
 
-while 'next' in res_json['paging']:
-  print (res_json['paging']['next'])
-  res = requests.get(res_json['paging']['next']) 
-  res_json = json.loads(res.text)
-  data.append(res_json['data'])
-  if res_json['data'][0]['created_time'].split('-')[0] != str(2017):
-    break
-
-with open('feed.pickle','w') as f:
-    pickle.dump(data,f)
+try:
+  while 'next' in res_json['paging']:
+    #print (res_json['paging']['next'])
+    print json.loads(res.text)
+    res = requests.get(res_json['paging']['next']) 
+    res_json = json.loads(res.text)
+    if 'data' in res_json:
+      data.append(res_json['data'])
+      print '.'
+    else:
+      print res_json
+except:
+  with open('feed.pickle','w') as f:
+      pickle.dump(data,f)
