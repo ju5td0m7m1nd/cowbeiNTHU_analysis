@@ -1,0 +1,4 @@
+*.pyc
+.ipy*
+*.npy
+*.pickle
